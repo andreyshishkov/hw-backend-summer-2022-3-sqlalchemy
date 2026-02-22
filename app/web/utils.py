@@ -1,5 +1,6 @@
 from aiohttp.web import json_response as aiohttp_json_response
 from aiohttp.web_response import Response
+import hashlib
 
 
 def json_response(data: dict | None = None, status: str = "ok") -> Response:
@@ -25,3 +26,8 @@ def error_json_response(
             "data": data or {},
         },
     )
+
+
+def hash_password(password: str) -> str:
+    """Хеширует пароль с использованием SHA-256."""
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()

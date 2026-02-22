@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
-    async_sessionmaker,
+    async_sessionmaker, create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase
 
@@ -22,14 +22,17 @@ class Database:
         self.session: async_sessionmaker[AsyncSession] | None = None
 
     async def connect(self, *args: Any, **kwargs: Any) -> None:
-        raise NotImplementedError
-        # self.engine = create_async_engine(
-        #     URL.create(
-        #     ),
-        # )
-        # self.session = async_sessionmaker(
-        #
-        # )
+        self.engine = create_async_engine(
+            self.app.config.database.url,
+            echo=True,
+            future=True,
+        )
+        self.session = async_sessionmaker(
+            self.engine,
+            expire_on_commit=False,
+            class_=AsyncSession,
+        )
 
     async def disconnect(self, *args: Any, **kwargs: Any) -> None:
-        raise NotImplementedError
+        if self.engine:
+            await self.engine.dispose()
