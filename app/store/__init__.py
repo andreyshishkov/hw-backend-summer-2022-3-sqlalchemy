@@ -13,6 +13,8 @@ class Store:
         from app.store.quiz.accessor import QuizAccessor
         from app.store.vk_api.accessor import VkApiAccessor
 
+        self.database = Database(app)
+
         self.quizzes = QuizAccessor(app)
         self.admins = AdminAccessor(app)
         self.vk_api = VkApiAccessor(app)
@@ -20,7 +22,11 @@ class Store:
 
 
 def setup_store(app: "Application"):
-    app.database = Database(app)
-    app.on_startup.append(app.database.connect)
-    app.on_cleanup.append(app.database.disconnect)
+    # app.database = Database(app)
+    # app.on_startup.append(app.database.connect)
+    # app.on_cleanup.append(app.database.disconnect)
+    # app.store = Store(app)
     app.store = Store(app)
+
+    app.on_startup.append(app.store.database.connect)
+    app.on_cleanup.append(app.store.database.disconnect)
