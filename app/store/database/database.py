@@ -26,11 +26,13 @@ class Database:
             self.app.config.database.url,
             echo=True,
             future=True,
+            pool_pre_ping=True,
         )
         self.session = async_sessionmaker(
-            self.engine,
+            bind=self.engine,
             expire_on_commit=False,
             class_=AsyncSession,
+            autoflush=False,
         )
 
         async with self.engine.begin() as conn:
