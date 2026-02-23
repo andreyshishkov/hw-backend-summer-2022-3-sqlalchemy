@@ -33,6 +33,9 @@ class Database:
             class_=AsyncSession,
         )
 
+        async with self.engine.begin() as conn:
+            await conn.run_sync(self._db.metadata.create_all)
+
     async def disconnect(self, *args: Any, **kwargs: Any) -> None:
         if self.engine:
             await self.engine.dispose()
