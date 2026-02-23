@@ -36,3 +36,5 @@ class Database:
     async def disconnect(self, *args: Any, **kwargs: Any) -> None:
         if self.engine:
             await self.engine.dispose()
+            self.engine = None
+            self.session = None

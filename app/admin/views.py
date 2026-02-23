@@ -32,5 +32,5 @@ class AdminCurrentView(View):
         admin_data = session.get("admin")
 
         if not admin_data:
-            raise HTTPUnauthorized(reason="Admin is not authrized")
+            raise HTTPUnauthorized(reason="unauthorized")
         return json_response(data=admin_data)
