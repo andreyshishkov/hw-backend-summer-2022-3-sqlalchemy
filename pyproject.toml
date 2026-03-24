@@ -177,5 +177,6 @@ filterwarnings = [
     "ignore::DeprecationWarning:pytest_asyncio.plugin.*:",
     "ignore::DeprecationWarning",
 ]
+python_files = ["test_*.py", "*_test.py"]
 
 
