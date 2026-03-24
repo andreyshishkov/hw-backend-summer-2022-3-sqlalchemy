@@ -17,6 +17,11 @@ class AdminAccessor(BaseAccessor):
                 password=app.config.admin.password
             )
 
+    async def get_by_id(self, id_: int) -> AdminModel:
+        stmt = select(AdminModel).where(AdminModel.id == id_)
+        async with self.app.database.session() as session:
+            return await session.scalar(stmt)
+
     async def get_by_email(self, email: str) -> AdminModel | None:
         query = select(AdminModel).where(AdminModel.email == email)
 
@@ -25,14 +30,12 @@ class AdminAccessor(BaseAccessor):
             return result.scalar_one_or_none()
 
     async def create_admin(self, email: str, password: str) -> AdminModel:
-        new_admin = AdminModel(
-            email=email,
-            password=hash_password(password)
-        )
+        new_admin = AdminModel(email=email)
+        new_admin.set_password(password)
 
         async with self.app.database.session() as session:
             session.add(new_admin)
             await session.commit()
             await session.refresh(new_admin)
 
-        return new_admin
+            return new_admin

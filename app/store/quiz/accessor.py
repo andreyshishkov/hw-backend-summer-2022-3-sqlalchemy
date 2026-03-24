@@ -17,7 +17,7 @@ class QuizAccessor(BaseAccessor):
             session.add(new_theme)
             await session.commit()
             await session.refresh(new_theme)
-        return new_theme
+            return new_theme
 
     async def get_theme_by_title(self, title: str) -> ThemeModel | None:
         query = select(ThemeModel).where(ThemeModel.title == title)
@@ -26,20 +26,45 @@ class QuizAccessor(BaseAccessor):
             return result.scalar_one_or_none()
 
     async def get_theme_by_id(self, id_: int) -> ThemeModel | None:
-        raise NotImplementedError
+        query = select(ThemeModel).where(ThemeModel.id == id_)
+        async with self.app.database.session() as session:
+            result = await session.execute(query)
+            return result.scalar_one_or_none()
 
     async def list_themes(self) -> Sequence[ThemeModel]:
-        raise NotImplementedError
+        stmt = select(ThemeModel)
+        async with self.app.database.session() as session:
+            result =  await session.scalars(stmt)
+            return result.all()
 
     async def create_question(
         self, title: str, theme_id: int, answers: Iterable[AnswerModel]
     ) -> QuestionModel:
-        raise NotImplementedError
+        question = QuestionModel(
+            title=title,
+            theme_id=theme_id,
+            answers=answers,
+        )
+        async with self.app.database.session() as session:
+            session.add(question)
+            await session.commit()
+            await session.refresh(question, ['answers'])
+            return question
 
     async def get_question_by_title(self, title: str) -> QuestionModel | None:
-        raise NotImplementedError
+        stmt = select(QuestionModel).where(QuestionModel.title == title)
+        async with self.app.database.session() as session:
+            return await session.scalar(stmt)
 
     async def list_questions(
         self, theme_id: int | None = None
     ) -> Sequence[QuestionModel]:
-        raise NotImplementedError
+        query = select(QuestionModel).options(
+            joinedload(QuestionModel.answers)
+        )
+        if theme_id is not None:
+            query = query.where(QuestionModel.theme_id == theme_id)
+
+        async with self.app.database.session() as session:
+            result = await session.scalars(query)
+            return result.unique().all()
