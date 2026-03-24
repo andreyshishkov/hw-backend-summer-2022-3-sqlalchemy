@@ -3,6 +3,7 @@ from app.web.utils import hash_password
 
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Integer
+import bcrypt
 
 
 class AdminModel(BaseModel):
@@ -12,5 +13,11 @@ class AdminModel(BaseModel):
     email: Mapped[str] = mapped_column(String, index=True, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
 
-    def is_password_valid(self, password: str) -> bool:
-        return self.password == hash_password(password)
+    def check_password(self, password: str) -> bool:
+        return bcrypt.checkpw(password.encode(), self.password.encode())
+
+    def set_password(self, password: str) -> None:
+        self.password = bcrypt.hashpw(
+            password.encode(),
+            bcrypt.gensalt(),
+        ).decode()
