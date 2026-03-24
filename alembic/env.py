@@ -30,7 +30,7 @@ app_config_path = Path(__file__).parent.parent / 'config.yml'
 setup_config(app, app_config_path)
 from app.admin.models import AdminModel
 from app.quiz.models import ThemeModel, QuestionModel, AnswerModel
-config.set_main_option('sqlalchemy.url', app.database.url)
+config.set_main_option('sqlalchemy.url', app.config.database.url)
 target_metadata = BaseModel.metadata
 
 # other values from the config, defined by the needs of env.py,
