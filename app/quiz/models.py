@@ -31,7 +31,7 @@ class AnswerModel(BaseModel):
     __tablename__ = "answers"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     is_correct: Mapped[bool] = mapped_column(Boolean, nullable=False)
     question_id: Mapped[int] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"), nullable=False)
 

@@ -11,7 +11,7 @@ class AdminModel(BaseModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     email: Mapped[str] = mapped_column(String, index=True, unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(String, nullable=False)
+    password: Mapped[str]
 
     def check_password(self, password: str) -> bool:
         return bcrypt.checkpw(password.encode(), self.password.encode())
