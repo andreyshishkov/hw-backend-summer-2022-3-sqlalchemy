@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker, create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.engine.url import URL
 
 from app.store.database import BaseModel
 
@@ -23,7 +24,14 @@ class Database:
 
     async def connect(self, *args: Any, **kwargs: Any) -> None:
         self.engine = create_async_engine(
-            self.app.config.database.url,
+            URL.create(
+                'postgresql+asyncpg',
+                self.app.config.database.user,
+                self.app.config.database.password,
+                self.app.config.database.host,
+                self.app.config.database.port,
+                self.app.config.database.database
+            ),
             echo=True,
             future=True,
             pool_pre_ping=True,
@@ -33,6 +41,7 @@ class Database:
             expire_on_commit=False,
             class_=AsyncSession,
             autoflush=False,
+            autocommit=False,
         )
 
         async with self.engine.begin() as conn:
@@ -41,5 +50,3 @@ class Database:
     async def disconnect(self, *args: Any, **kwargs: Any) -> None:
         if self.engine:
             await self.engine.dispose()
-            self.engine = None
-            self.session = None
