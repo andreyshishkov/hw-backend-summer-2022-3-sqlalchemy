@@ -1,4 +1,5 @@
 import logging
+import asyncio
 import os
 from asyncio import AbstractEventLoop
 from collections.abc import Iterator
@@ -23,8 +24,10 @@ from .fixtures import *
 
 @pytest.fixture(scope="session")
 def event_loop() -> Iterator[None]:
-    with loop_context() as _loop:
-        yield _loop
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.fixture(scope="session")
@@ -99,12 +102,12 @@ def config(application: Application) -> Config:
 
 
 @pytest.fixture(autouse=True)
-def cli(
+async def cli(
     aiohttp_client: AiohttpClient,
     event_loop: AbstractEventLoop,
     application: Application,
 ) -> TestClient:
-    return event_loop.run_until_complete(aiohttp_client(application))
+    return await aiohttp_client(application)
 
 
 @pytest.fixture
